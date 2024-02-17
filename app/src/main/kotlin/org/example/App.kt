@@ -22,8 +22,10 @@ import java.io.FileNotFoundException
 
 import java.nio.file.Paths
 import java.nio.file.Path
+import java.io.File
+import java.io.FileWriter
 
-class JavaPrintableTree(val tree: ParseTree) {
+class JavaPrintableTree(val tree: ParseTree, val writer: FileWriter) {
     
     override fun toString() = treeString(tree, "")
 
@@ -65,23 +67,64 @@ class JavaPrintableTree(val tree: ParseTree) {
 fun main() {
     
     try {
-        //Filepath
+        //Filepaths
         val currentPath = Paths.get(".").normalize().toAbsolutePath();
-        val filePath = Paths.get(currentPath.toString(), "src", "main", "assets", "Sample 3.java"); //Change File Name here
+        val loadPath1 = Paths.get(currentPath.toString(), "src", "main", "assets", "Sample 1.java"); //Change File Name here
+        val loadPath2 = Paths.get(currentPath.toString(), "src", "main", "assets", "Sample 2.java"); //Change File Name here
+        val loadPath3 = Paths.get(currentPath.toString(), "src", "main", "assets", "Sample 3.java"); //Change File Name here
+        val savePath = Paths.get(currentPath.toString(), "Output Log.txt")
+
+        //Set up FileWriter for output log
+        val writer = FileWriter(savePath.toString());
+        writer.write("")
 
         //Get streams, set up lexer, set up parser
-        val fileStream = FileInputStream(filePath.toString());
-        val inputStream = CharStreams.fromStream(fileStream)
+        val fileStream1 = FileInputStream(loadPath1.toString());
+        val fileStream2 = FileInputStream(loadPath2.toString());
+        val fileStream3 = FileInputStream(loadPath3.toString());
+        val inputStream1 = CharStreams.fromStream(fileStream1)
+        val inputStream2 = CharStreams.fromStream(fileStream2)
+        val inputStream3 = CharStreams.fromStream(fileStream3)
 
-        val lexer = JavaLexer(inputStream)
-        val tokens = CommonTokenStream(lexer)
+        val lexer1 = JavaLexer(inputStream1)
+        val lexer2 = JavaLexer(inputStream2)
+        val lexer3 = JavaLexer(inputStream3)
+        val tokens1 = CommonTokenStream(lexer1)
+        val tokens2 = CommonTokenStream(lexer2)
+        val tokens3 = CommonTokenStream(lexer3)
 
-        val parser = JavaParser(tokens)
-        val tree = parser.compilationUnit()
+        val parser1 = JavaParser(tokens1)
+        val parser2 = JavaParser(tokens2)
+        val parser3 = JavaParser(tokens3)
+        val tree1 = parser1.compilationUnit()
+        val tree2 = parser2.compilationUnit()
+        val tree3 = parser3.compilationUnit()
 
         //AST cannot be printed on its own. Use a helper class to 
-        val printableTree = JavaPrintableTree(tree)
-        println(printableTree)
+        val printableTree1 = JavaPrintableTree(tree1, writer)
+        val printableTree2 = JavaPrintableTree(tree2, writer)
+        val printableTree3 = JavaPrintableTree(tree3, writer)
+        val treeString1 = printableTree1.toString()
+        val treeString2 = printableTree1.toString()
+        val treeString3 = printableTree1.toString()
+        
+        //Print to console & log
+        println(treeString1)
+        println("")
+        println(treeString2)
+        println("")
+        println(treeString3)
+        println("")
+
+        writer.append(treeString1)
+        writer.append("\n\n")
+        writer.append(treeString2)
+        writer.append("\n\n")
+        writer.append(treeString3)
+        writer.append("\n\n")
+
+        //Cleanup
+        writer.close()
     }
     catch(err: FileNotFoundException) {
         println("File not found!")
